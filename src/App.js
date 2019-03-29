@@ -29,7 +29,7 @@ class App extends Component {
     const setData = (data,userPosition)=>{
      
       if(data && userPosition){
-
+        
         this.setState({
           userData:{
             country:data.address.country,

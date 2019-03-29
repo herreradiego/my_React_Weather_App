@@ -2,6 +2,8 @@ import React from 'react'
 import WeatherIcon from 'react-icons-weather';
 
 const Home = (props)=>{
+
+    console.log("from home: ",props.userData.suburb)
   
     return(
       <div className="container">
