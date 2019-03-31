@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Home from './Home'
 import ErroMsg from './ErrorMsg'
@@ -19,12 +18,40 @@ class App extends Component {
   }
 
   componentDidMount(){
-
     this.setState({
       isLoading:true
     })
 
-    const data ={}
+    //Check if Browser supports geolocation
+    if(window.navigator.geolocation){
+
+      navigator.geolocation.getCurrentPosition(succes,errorGeo);
+
+        async function succes(position){
+          try{
+            console.log(position.coords.latitude)
+            console.log(position.coords.longitude)
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
+            const data = await response.json()
+            const userPosition = await position;
+            setData(data,userPosition);
+            getReverseGeo(data)
+          }catch (err) {
+            console.log(err)
+        }
+          
+      }
+
+
+      function errorGeo(error){
+        setErrorState (error.code)
+        }
+
+    }else{
+      
+      setErrorState(4)
+
+    }
 
     const setData = (data,userPosition)=>{
      
@@ -40,11 +67,7 @@ class App extends Component {
               lat:userPosition.coords.latitude,
               long:userPosition.coords.longitude
             }
-            
-          },
-        
-          
-          
+          },  
         })
       }
     }
@@ -73,68 +96,28 @@ class App extends Component {
       
     }
 
-    const setErrorState = ()=>{
-      console.log("setting value")
-      this.setState({
-        loadingError:true,
-        isLoading:false
-      })
-    }
-			
-			//check if gelocation is available
-			
-        
-    navigator.geolocation.getCurrentPosition(succes,errorGeo);
-
-        async function succes(position){
-          try{
-            console.log(position.coords.latitude)
-            console.log(position.coords.longitude)
-            const response = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=-34.5832157&lon=-58.4907768')
-            const data = await response.json()
-            const userPosition = await position;
-            setData(data,userPosition);
-            getReverseGeo(data)
-          }catch (err) {
-            console.log(err)
-        }
-          
+    const setErrorState = (error)=>{
+      const errorMsg = {
+        1:'PERMISSION_DENIED: Please give permission to use Geolocation on your browser ',
+        2:'POSITION_UNAVAILABLE: Your position is not available right now',
+        3:'TIMEOUT',
+        4:'Geolocation is not supported by this browser'
       }
 
-      function errorGeo(error){
-        setErrorState ()
-          console.log('GEOLOCALIZATION IS NOT WORKING ON YOUR BROWSER. ERROR CODE: ' + error.code)
-        }
-			
-      		  fetch('http://ip-api.com/json', {
-            headers: new Headers({'content-type': 'application/json'}),
-            mode: 'no-cors'}).then((response)=>{
-              console.log("ESTO", JSON.stringify(response))
-
-                const latitude = response.lat;
-                const longitude = response.lon;  
-                const pos=[latitude,longitude]; 
-                console.log("posicion: ",response)
-
-                this.setState({
-                  userGeoPos:{
-                    latitude:response.lat,
-                    longitude:response.lon
-                  }
-                })
-
-            }) 
-        			
-      			
-		
+      this.setState({
+        loadingError:true,
+        errorMsg:errorMsg[error],
+        isLoading:false
+      })
+    }		
   }
+
   render() {
-    
     return (
       <React.Fragment>
         <div className="App">
           <div className='container'>
-            {this.state.isLoading ? <Loader/> : (this.state.loadingError) ? <ErroMsg/> : (this.state.userData && this.state.weatherData ? <Home weatherData ={this.state.weatherData} userData={this.state.userData}/>:null) }
+            {this.state.isLoading ? <Loader/> : (this.state.loadingError) ? <ErroMsg msg={this.state.errorMsg}/> : (this.state.userData && this.state.weatherData ? <Home weatherData ={this.state.weatherData} userData={this.state.userData}/>:null) }
           </div>
         </div>
       </React.Fragment>

@@ -1,8 +1,11 @@
 import React from 'react'
 
-const ErroMsg = () =>{
+const ErroMsg = (props) =>{
     return(
-      <h1> Something does not work well... :(</h1>
+      <React.Fragment>  
+        <h1> Something does not work well... :(</h1>
+        <h6>Error Message:{props.msg}</h6>
+        </React.Fragment>
     )
   }
 

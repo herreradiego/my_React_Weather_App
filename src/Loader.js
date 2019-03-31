@@ -1,10 +1,10 @@
 import React from 'react'
-
+import imgLoader from './gifCat.gif'
 const Loader = ()=>{
     return (
       <React.Fragment>
         <h1>LOADING...</h1>
-        <img className='loader' src={'https://thumbs.gfycat.com/GroundedKeenFinnishspitz-size_restricted.gif'}/>
+        <img className='loader' src={imgLoader}/>
       </React.Fragment>
     )
   }
